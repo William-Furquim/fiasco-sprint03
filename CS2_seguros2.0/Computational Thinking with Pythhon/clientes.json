@@ -1,0 +1,18 @@
+[
+    {
+        "cpf": "46085636881",
+        "nome": "Matheus Cardoso Gomes",
+        "data_nasc": "04/04/2006",
+        "endereco": "Rua Silveira Bueno, 127",
+        "telefone": "11 99241-3483",
+        "email": "matheus04042006@gmail.com"
+    },
+    {
+        "cpf": "12188802446",
+        "nome": "Paulo Gabriel Pessoa da Silva",
+        "data_nasc": "26/02/2007",
+        "endereco": "Rua Peçonha Neris, 402",
+        "telefone": "11 34567-3456",
+        "email": "biel67489@gmail.com"
+    }
+]

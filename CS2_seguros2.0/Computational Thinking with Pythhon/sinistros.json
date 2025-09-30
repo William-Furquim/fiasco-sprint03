@@ -1,0 +1,16 @@
+[
+    {
+        "cliente_cpf": "46085636881",
+        "numero_apolice": "AP-77D2CA11",
+        "descricao": "Acidente cardiaco",
+        "data": "2030-02-20",
+        "status": "fechado"
+    },
+    {
+        "cliente_cpf": "12188802446",
+        "numero_apolice": "AP-5825F474",
+        "descricao": "Muito amor ao professor Leo",
+        "data": "0001-05-02",
+        "status": "aberto"
+    }
+]

@@ -1,0 +1,16 @@
+[
+    {
+        "numero": "AP-77D2CA11",
+        "cliente_cpf": "46085636881",
+        "seguro_id": "dd54b2e4-83ba-442a-8e4f-3a436694768f",
+        "valor_mensal": 500.0,
+        "ativa": false
+    },
+    {
+        "numero": "AP-5825F474",
+        "cliente_cpf": "12188802446",
+        "seguro_id": "e5f205b5-254b-4cfe-9bf2-7af2e154f3f0",
+        "valor_mensal": 50000.0,
+        "ativa": true
+    }
+]

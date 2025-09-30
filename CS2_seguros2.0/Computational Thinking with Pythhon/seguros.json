@@ -1,0 +1,14 @@
+[
+    {
+        "id": "bfeb4ae4-048d-4456-acae-0bd27ca7786a",
+        "tipo": "Vida",
+        "valor": 10000.0,
+        "beneficiarios": "Matheus Cardoso Gomes"
+    },
+    {
+        "id": "e5f205b5-254b-4cfe-9bf2-7af2e154f3f0",
+        "tipo": "Residencial",
+        "valor": 1000000.0,
+        "endereco_imovel": "Rua Leo Lindo, 3<3"
+    }
+]
