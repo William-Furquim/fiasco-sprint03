@@ -29,15 +29,21 @@ Na Sprint atual, o projeto foi evoluído para utilizar persistência híbrida em
 1.  Extraia o conteúdo do projeto em uma única pasta.
 2.  Confirme que os arquivos Python (`main.py`, `dao.py`, `migracao.py`, `excecoes.py`, `logs.py`, etc.) e os arquivos JSON de exemplo (`*.json`) estão presentes.
 
-### 2\. Inicialização do Banco de Dados (SQLite)
+### 2\. Arquitetura dos Dados
 
-🗄️ Arquitetura dos Dados
-Camada	Banco	O que armazena
-Relacional	MySQL	Clientes, Seguros, Apólices, Sinistros (informações principais)
-Documentos	MongoDB	Logs, observações extensas, anexos, auditoria detalhada
-Auditoria em arquivo	/logs/	Histórico diário de ações: auditoria_YYYYMMDD.log
-🚀 Como Executar o Sistema
-✅ 1. Configure o MySQL
+O sistema utiliza uma arquitetura de persistência de dados híbrida, dividida em três camadas principais:
+
+Banco de dados relacional (MySQL):
+Essa camada é responsável por armazenar todas as informações estruturadas e que possuem relações entre si. Aqui ficam armazenados os dados de Clientes, Seguros, Apólices e Sinistros. São dados organizados em tabelas, com chaves primárias e estrangeiras, permitindo integridade e consistência.
+
+Banco de dados não relacional (MongoDB):
+Essa camada armazena dados que não são facilmente estruturados em tabelas ou que podem variar de formato, como observações extensas de sinistros, anexos, relatórios, informações adicionais e logs de auditoria mais detalhados. Cada registro é salvo no formato de documento (JSON), oferecendo flexibilidade.
+
+Auditoria em arquivo (pasta /logs/):
+Além dos bancos de dados, o sistema mantém um arquivo de auditoria diário no formato .log. Esses arquivos são armazenados dentro da pasta logs/ e seguem o padrão de nome auditoria_YYYYMMDD.log, registrando todas as ações importantes feitas no sistema, como operações de cadastro, alterações e erros.
+
+#### Como Executar o Sistema
+1. Configure o MySQL
 
 Crie o banco de dados manualmente ou deixe o sistema fazer isso na primeira execução.
 
@@ -48,7 +54,7 @@ Ou apenas rode o programa, pois o dao.py executa automaticamente:
 
 criar_tabelas()  # Cria tabelas se não existirem
 
-✅ 2. Configure o MongoDB (opcional se estiver local)
+2. Configure o MongoDB (opcional se estiver local)
 
 MongoDB será criado automaticamente quando os primeiros logs forem inseridos:
 
@@ -60,39 +66,49 @@ logs
 
 sinistros_detalhes (observações e dados extras)
 
-✅ 3. Execute o sistema:
+3. Execute o sistema:
 python main.py
 
-✅ 4. Executar migração de dados dos JSONs:
+4. Executar migração de dados dos JSONs:
 python migracao.py
 
-🔐 Credenciais Padrão (armazenadas no MySQL)
+#### Credenciais Padrão (armazenadas no MySQL)
 Perfil	Usuário	Senha	Permissões
 Admin	admin	admin123	Total
 Usuário	user	user123	Apenas consulta
-📂 Principais Arquivos do Projeto
+#### Principais Arquivos do Projeto
 Arquivo	Função
 dao.py	Camada de dados — agora usa MySQL + MongoDB
 migracao.py	Importa JSONs para o MySQL
 logs.py	Sistema de auditoria (arquivo .log + MongoDB)
 main.py	Menu principal e controle do fluxo
 cliente.py, seguro.py, apolice.py, sinistro.py	Classes de modelo
-📡 Persistência Híbrida — Como funciona?
-✅ MySQL — Dados estruturados (ACID)
+### 3\. Persistência Híbrida — Como funciona?
+- MySQL — Dados estruturados (ACID)
 
-Clientes (clientes)
+O MySQL é o banco de dados responsável por armazenar todas as informações estruturadas do sistema, ou seja, os dados que possuem um formato fixo, relações entre si e precisam garantir integridade e consistência. Ele é utilizado por ser um banco relacional que segue o modelo ACID (Atomicidade, Consistência, Isolamento e Durabilidade), o que torna as operações mais seguras e confiáveis.
 
-Seguros (seguros)
+Dentro dele ficam armazenados:
 
-Apólices (apolices)
+Clientes: dados cadastrais como CPF, nome, endereço, e-mail, telefone e data de nascimento.
 
-Sinistros básicos (sinistros)
+Seguros: informações sobre os tipos de seguros oferecidos (automóvel, vida, residência, etc.), valores, modelo, ano, placa ou dados do imóvel, dependendo do tipo.
 
-✅ MongoDB — Dados complementares
+Apólices: registros que fazem a ligação entre o cliente e o seguro contratado, contendo número da apólice, valor mensal e se está ativa ou não.
 
-Usamos para armazenar informações que não são bem estruturadas em tabelas relacionais:
+Sinistros (dados básicos): ocorrências registradas pelo cliente, com CPF, número da apólice, data, status e uma descrição resumida.
 
-Coleção Mongo	O que guarda?
-logs	Cada operação do sistema (CRUD, login, erro) com timestamp e usuário
-sinistros_detalhes	Observações longas, imagens, relatórios extensos
-perfil_cliente (opcional)	Preferências, histórico de contato
+Esses dados estruturados permanecem no MySQL para garantir organização, relacionamento entre tabelas (por meio de chaves estrangeiras) e para facilitar consultas, relatórios e cálculos.
+- MongoDB — Dados complementares
+
+O MongoDB é utilizado no sistema para armazenar informações complementares, ou seja, dados que não se encaixam bem no formato de tabelas relacionais do MySQL. Esse banco é ideal para guardar conteúdos mais flexíveis, que podem variar muito de tamanho, estrutura e quantidade de informações.
+Dentro dele, utilizamos coleções específicas para diferentes tipos de dados:
+
+Coleção logs:
+Armazena os registros de auditoria referentes às operações realizadas no sistema. Isso inclui ações como cadastro, consultas, alterações, exclusões, tentativas de login e possíveis erros. Cada log contém informações como data e hora, usuário que executou a ação, tipo da operação e detalhes relevantes.
+
+Coleção sinistros_detalhes:
+Essa coleção guarda dados mais completos e desestruturados relacionados a sinistros. São informações que o MySQL não armazena bem, como descrições muito longas, observações adicionais, relatórios, imagens, documentos anexados ou metadados específicos do sinistro.
+
+Coleção perfil_cliente (opcional):
+Pode ser usada para armazenar dados mais subjetivos sobre o cliente, como histórico de interações, preferências, nível de engajamento e anotações que não fazem parte do cadastro formal armazenado no MySQL.
