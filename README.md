@@ -86,10 +86,13 @@ cliente.py, seguro.py, apolice.py, sinistro.py	Classes de modelo
 
 #### Como rodar os testes
 - Instalar pytest
+  
 pip install pytest
 - Rodar todos os testes
+  
 pytest
 - Rodar testes com cobertura (opcional)
+
 pip install pytest-cov
 pytest --cov=.
 
