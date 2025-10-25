@@ -1,6 +1,11 @@
-# Sistema de Gestão de Apólices - Sprint 3: Persistência Robusta e Auditoria
+# Sistema de Gestão de Apólices - Sprint 4: Persistência Híbrida (MySQL + MongoDB)
 
-Este é um programa em Python para gerenciar apólices de seguros, feito pelo grupo **FIASCO** para a **Sprint 3** do nosso projeto. O sistema foi migrado para um **banco de dados SQLite** para garantir **persistência robusta**, adicionamos um módulo de **Auditoria (Logs)** para rastrear todas as operações críticas e implementamos **Tratamento de Erros** para uma CLI mais amigável.
+Este sistema gerencia clientes, seguros, apólices e sinistros.
+Na Sprint atual, o projeto foi evoluído para utilizar persistência híbrida em dois bancos de dados:
+
+- MySQL → dados estruturados e relacionais (clientes, seguros, apólices, sinistros)
+- MongoDB → dados não estruturados (logs, anexos, observações longas de sinistros, histórico de ações)
+- Logs de auditoria automatizados → arquivo .log e MongoDB
 
 ## 🧑‍💻 Integrantes do Grupo FIASCO
 
@@ -15,7 +20,7 @@ Este é um programa em Python para gerenciar apólices de seguros, feito pelo gr
 ## 🚀 Requisitos para Execução
 
   * **Linguagem:** Python 3.8 ou superior.
-  * **Bibliotecas:** Apenas as bibliotecas padrão do Python (`sqlite3`, `csv`, `logging`, `os`, etc.). Nenhuma instalação extra é necessária.
+  * **Bibliotecas:** As bibliotecas padrão do Python (`mysql-connector-python`, `pymongo`, `csv`, `logging`, `os`, etc.) Instale as dependências com: `pip install mysql-connector-python pymongo`
 
 ## 💾 Instruções de Instalação e Execução
 
@@ -26,64 +31,68 @@ Este é um programa em Python para gerenciar apólices de seguros, feito pelo gr
 
 ### 2\. Inicialização do Banco de Dados (SQLite)
 
-O sistema utiliza o banco de dados `seguros_sistema.db`. Ele será criado automaticamente.
+🗄️ Arquitetura dos Dados
+Camada	Banco	O que armazena
+Relacional	MySQL	Clientes, Seguros, Apólices, Sinistros (informações principais)
+Documentos	MongoDB	Logs, observações extensas, anexos, auditoria detalhada
+Auditoria em arquivo	/logs/	Histórico diário de ações: auditoria_YYYYMMDD.log
+🚀 Como Executar o Sistema
+✅ 1. Configure o MySQL
 
-  * **Aviso:** O banco de dados **não** deve ser mantido no GitHub, apenas o código.
+Crie o banco de dados manualmente ou deixe o sistema fazer isso na primeira execução.
 
-### 3\. Rotina de Migração (Populando o Banco)
+CREATE DATABASE seguros_sistema;
 
-Para usar os dados de exemplo da Sprint 2 no novo banco SQLite, você deve rodar o script de migração **uma única vez**:
 
-```bash
-python migracao.py
-```
+Ou apenas rode o programa, pois o dao.py executa automaticamente:
 
-*Após rodar este comando, o arquivo `seguros_sistema.db` será criado e preenchido com todos os dados dos seus `*.json`.*
+criar_tabelas()  # Cria tabelas se não existirem
 
-### 4\. Execução do Sistema
+✅ 2. Configure o MongoDB (opcional se estiver local)
 
-Abra um terminal na pasta do projeto e inicie o sistema:
+MongoDB será criado automaticamente quando os primeiros logs forem inseridos:
 
-```bash
+Database: seguros_sistema_mongo
+
+Colections usadas:
+
+logs
+
+sinistros_detalhes (observações e dados extras)
+
+✅ 3. Execute o sistema:
 python main.py
-```
 
-### 🔑 Credenciais de Acesso (Persistidas no SQLite)
+✅ 4. Executar migração de dados dos JSONs:
+python migracao.py
 
-| Perfil | Usuário | Senha | Permissões |
-| :--- | :--- | :--- | :--- |
-| **Administrador** | admin | admin123 | Total: Cadastro, Edição, Cancelamento, Sinistros e Relatórios. |
-| **Comum** | user | user123 | Apenas Consultas e Relatórios. |
+🔐 Credenciais Padrão (armazenadas no MySQL)
+Perfil	Usuário	Senha	Permissões
+Admin	admin	admin123	Total
+Usuário	user	user123	Apenas consulta
+📂 Principais Arquivos do Projeto
+Arquivo	Função
+dao.py	Camada de dados — agora usa MySQL + MongoDB
+migracao.py	Importa JSONs para o MySQL
+logs.py	Sistema de auditoria (arquivo .log + MongoDB)
+main.py	Menu principal e controle do fluxo
+cliente.py, seguro.py, apolice.py, sinistro.py	Classes de modelo
+📡 Persistência Híbrida — Como funciona?
+✅ MySQL — Dados estruturados (ACID)
 
------
+Clientes (clientes)
 
-## 🔍 Entregáveis e Onde Encontrá-los
+Seguros (seguros)
 
-| Entregável | Onde está | Como Funciona |
-| :--- | :--- | :--- |
-| **Persistência SQLite** | Arquivo `seguros_sistema.db` | O módulo `dao.py` gerencia o CRUD (Create, Read, Update, Delete). |
-| **Rotina de Migração** | Arquivo `migracao.py` | Lida com a criação do schema e importação dos JSONs. |
-| **Auditoria e Logs** | **Pasta `logs/`** | Arquivos `.log` são gerados (ex: `auditoria_20241020.log`) e registram *quem* (`USUARIO: admin`) fez *o quê*. |
-| **Tratamento de Erros** | Módulo `excecoes.py` | Exibe mensagens amigáveis na CLI (Ex: `ERRO: Apólice já está inativa.`) em vez de *stack traces*. |
-| **Relatórios Novos** | Menu **11-Relatórios Avançados** | Implementação de **Receita Mensal Prevista**, **Ranking por Valor Segurado** e **Sinistros por Período**. |
-| **Exportação CSV** | **Pasta `exports/`** | Após gerar os relatórios, o sistema pergunta se deseja exportar, salvando um arquivo CSV na pasta `exports/`. |
+Apólices (apolices)
 
-## 📃 Exemplos Rápidos de Uso
+Sinistros básicos (sinistros)
 
-| Fluxo | Ação no Menu | O que Testar |
-| :--- | :--- | :--- |
-| **Teste de Auditoria** | Tente fazer Login com senha errada. | O console exibe o erro e o log registra um `WARNING` (Usuário: TENTATIVA). |
-| **Cadastro com Log** | Login como `admin`. Opção **1-Cadastrar Cliente**. | O log registra um `INFO` com o CPF e nome do cliente cadastrado. |
-| **Fluxo de Erro** | Login como `admin`. Opção **9-Cancelar Apólice** e tente cancelar o mesmo número duas vezes. | Na segunda tentativa, o console exibe `ERRO: Apólice [número] já está inativa.` |
-| **Geração de CSV** | Opção **11-Relatórios Avançados**, depois **2-Ranking Clientes...** | No final do relatório, digite `s` para exportar. Verifique a criação do arquivo CSV na pasta `exports/`. |
+✅ MongoDB — Dados complementares
 
-## 🗃️ Estrutura de Arquivos Principal
+Usamos para armazenar informações que não são bem estruturadas em tabelas relacionais:
 
-  * **`main.py`**: Inicia o sistema e gerencia o menu principal.
-  * **`dao.py`**: **NOVO:** Camada de Acesso a Dados (CRUD) que se comunica diretamente com o SQLite.
-  * **`migracao.py`**: **NOVO:** Script para importar dados dos JSONs para o SQLite.
-  * **`logs.py`**: **NOVO:** Configura o módulo de auditoria (`logging`).
-  * **`excecoes.py`**: **NOVO:** Define as classes de erro de negócio.
-  * **`sistema.py`**: Controlador que usa o `dao.py` para todas as operações e registra logs.
-  * **`cliente.py`, `apolice.py`, `sinistro.py`, `seguro.py`**: Contêm as Classes POO (Modelos) e as funções de menu.
-  * **`persistencia.py`**: Mantido para a função de **exportação** CSV/JSON.
+Coleção Mongo	O que guarda?
+logs	Cada operação do sistema (CRUD, login, erro) com timestamp e usuário
+sinistros_detalhes	Observações longas, imagens, relatórios extensos
+perfil_cliente (opcional)	Preferências, histórico de contato
