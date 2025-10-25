@@ -119,8 +119,8 @@ def criar_tabelas():
 
 # --- DAO de Clientes ---
 
-def inserir_cliente(cliente_obj):
-    conn = get_db_connection()
+def inserir_cliente(cliente_obj, usuario_log="SISTEMA"):
+    conn = get_mysql_connection()
     cursor = conn.cursor()
     try:
         data = cliente_obj.to_dict()
