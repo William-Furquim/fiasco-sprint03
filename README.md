@@ -83,6 +83,7 @@ migracao.py	Importa JSONs para o MySQL
 logs.py	Sistema de auditoria (arquivo .log + MongoDB)
 main.py	Menu principal e controle do fluxo
 cliente.py, seguro.py, apolice.py, sinistro.py	Classes de modelo
+
 ### 3\. Persistência Híbrida — Como funciona?
 - MySQL — Dados estruturados (ACID)
 
