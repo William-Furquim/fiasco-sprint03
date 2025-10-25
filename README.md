@@ -84,6 +84,15 @@ logs.py	Sistema de auditoria (arquivo .log + MongoDB)
 main.py	Menu principal e controle do fluxo
 cliente.py, seguro.py, apolice.py, sinistro.py	Classes de modelo
 
+#### Como rodar os testes
+- Instalar pytest
+pip install pytest
+- Rodar todos os testes
+pytest
+- Rodar testes com cobertura (opcional)
+pip install pytest-cov
+pytest --cov=.
+
 ### 3\. Persistência Híbrida — Como funciona?
 - MySQL — Dados estruturados (ACID)
 
