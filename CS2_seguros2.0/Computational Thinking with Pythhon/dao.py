@@ -497,7 +497,7 @@ def sinistros_por_status_e_periodo(data_inicio=None, data_fim=None):
         cursor.close()
         conn.close()
 
-# Inicialização
+# Inicialização.
 try:
     criar_tabelas()  # agora esta função cria o banco e as tabelas no MySQL
     print("Banco de dados MySQL inicializado e tabelas criadas (se não existiam).")
